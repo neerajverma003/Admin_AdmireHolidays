@@ -6,14 +6,16 @@ const ITEMS_PER_PAGE = 10;
 
 
 
-const deleteSuggestionAPI = (suggestionId) => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      // On a real server, you would execute a database query to delete the record.
-      // console.log(`Successfully deleted suggestion with ID: ${suggestionId} on the server.`);
-      resolve({ success: true });
-    }, 500);
-  });
+// Call backend to delete a suggestion
+const deleteSuggestionAPI = async (suggestionId) => {
+  return apiClient.delete(`/admin/get-suggestions/${suggestionId}`);
+};
+
+// Helper to load suggestions (backend currently returns full list)
+const fetchSuggestions = async (page = 1) => {
+  const response = await apiClient.get("/admin/get-suggestions");
+  const data = response?.data?.Data || [];
+  return { data, total: data.length };
 };
 
 
@@ -39,16 +41,11 @@ const Suggestions = () => {
       setIsLoading(true);
       setError(null);
       try {
-        const response = await apiClient.get("/admin/get-suggestions");
-        // console.log(response.data.Data);
-        if (response.data.Data) {
-          setSuggestions(response.data.Data);
-          setTotalSuggestions(response.data.Data.length);
-        }
-
+        const { data, total } = await fetchSuggestions(currentPage);
+        setSuggestions(data);
+        setTotalSuggestions(total);
       } catch (err) {
         setError("Failed to load suggestions. Please try refreshing the page.");
-        // console.error(err);
       } finally {
         setIsLoading(false);
       }
@@ -65,19 +62,16 @@ const Suggestions = () => {
       try {
         await deleteSuggestionAPI(suggestionId);
 
-        // After a successful deletion, intelligently refresh the data
+        // After a successful deletion, refresh list or change page when needed
         if (suggestions.length === 1 && currentPage > 1) {
-          // If the deleted item was the last one on the current page, go back one page
-          setCurrentPage(prevPage => prevPage - 1);
+          setCurrentPage((prevPage) => prevPage - 1);
         } else {
-          // Otherwise, just re-fetch the data for the current page
-          const response = await fetchSuggestions(currentPage);
-          setSuggestions(response.data);
-          setTotalSuggestions(response.total);
+          const { data, total } = await fetchSuggestions(currentPage);
+          setSuggestions(data);
+          setTotalSuggestions(total);
         }
       } catch (err) {
         alert("Failed to delete the suggestion. Please try again.");
-        // console.error("Deletion error:", err);
       }
     }
   };
@@ -116,7 +110,7 @@ const Suggestions = () => {
             {/* List of Suggestion Cards */}
             <div className="space-y-6">
               {suggestions.map((suggestion) => (
-                <div key={suggestion.id} className="rounded-xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:shadow-lg dark:border-slate-800 dark:bg-slate-900">
+                <div key={suggestion._id} className="rounded-xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:shadow-lg dark:border-slate-800 dark:bg-slate-900">
                   <div className="p-6">
                     <div className="flex flex-col md:flex-row justify-between md:items-start gap-4">
                       {/* User Info */}
@@ -127,7 +121,7 @@ const Suggestions = () => {
                       {/* Delete Button */}
                       <div className="flex-shrink-0 mt-4 md:mt-0">
                         <button
-                          onClick={() => handleDelete(suggestion.id)}
+                          onClick={() => handleDelete(suggestion._id)}
                           className="inline-flex items-center justify-center rounded-lg bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 shadow-sm transition-colors hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20 dark:focus:ring-offset-slate-900"
                         >
                           Delete

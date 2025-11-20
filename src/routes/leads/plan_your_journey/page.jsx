@@ -1,17 +1,10 @@
 import { useEffect, useState } from "react";
 import { apiClient } from "../../../stores/authStore";
 
-// --- Mock API Functions ---
-
-const deleteJourneyAPI = (journeyId) => {
-  return new Promise((resolve, reject) => {
-    // Simulate network delay
-    setTimeout(() => {
-      // In a real API, you would check if the delete was successful.
-      // console.log(`Successfully deleted journey with ID: ${journeyId} on the server.`);
-      resolve({ success: true });
-    }, 500);
-  });
+// Delete journey API (calls backend admin route)
+const deleteJourneyAPI = async (journeyId) => {
+  // returns the axios response
+  return apiClient.delete(`/admin/plan-your-journey/${journeyId}`);
 };
 
 
@@ -61,7 +54,8 @@ const PlanYourJourney = () => {
         await deleteJourneyAPI(journeyId);
 
         // If the API call is successful, update the UI by filtering out the deleted journey
-        setJourneys(currentJourneys => currentJourneys.filter(journey => journey.id !== journeyId));
+        // backend returns Mongo documents with `_id` so compare against `_id`
+        setJourneys((currentJourneys) => currentJourneys.filter((journey) => journey._id !== journeyId));
       } catch (err) {
         // In a real app, you might show a notification to the user
         alert("Failed to delete the journey. Please try again.");
@@ -107,7 +101,7 @@ const PlanYourJourney = () => {
       <div className="space-y-6">
         {journeys.length > 0 ? (
           journeys.map((journey) => (
-            <div key={journey.id} className="rounded-xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900">
+            <div key={journey._id} className="rounded-xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900">
               <div className="p-6">
                 <div className="flex flex-col md:flex-row justify-between md:items-start gap-4">
 
@@ -127,7 +121,7 @@ const PlanYourJourney = () => {
                   {/* Delete Button */}
                   <div className="flex-shrink-0 mt-4 md:mt-0">
                     <button
-                      onClick={() => handleDelete(journey.id)}
+                      onClick={() => handleDelete(journey._id)}
                       className="inline-flex items-center justify-center rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:focus:ring-offset-slate-900"
                     >
                       Delete
