@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const TextTestimonialForm = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
     location: "",
@@ -46,12 +48,14 @@ const TextTestimonialForm = () => {
         }
       });
 
-      await axios.post("http://localhost:5000/api/v1/text-testimonial", data, {
+      console.log("Submitting testimonial...");
+      const res = await axios.post("/api/v1/text-testimonials/submit", data, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
 
+      console.log("Testimonial response:", res);
       alert("Testimonial submitted successfully!");
       setFormData({
         name: "",
@@ -64,9 +68,12 @@ const TextTestimonialForm = () => {
         message: "",
         toShow: false,
       });
+      // Redirect to testimonials list page
+      navigate("/text_testimonial");
     } catch (err) {
-      console.error(err);
-      alert("Error submitting testimonial");
+      console.error("Error submitting testimonial:", err);
+      const errorMessage = err.response?.data?.message || err.message || "Error submitting testimonial";
+      alert(errorMessage);
     }
   };
 

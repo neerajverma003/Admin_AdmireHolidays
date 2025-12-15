@@ -37,8 +37,9 @@ import ResortEdit from "./routes/resort_list/EditPage.jsx";
 // stores
 import useAuthStore from "./stores/authStore";
 import ViewImageGallery from "./routes/view_image_gallery/page";
-// import TextTestimonialForm from "./routes/testimonial/TextTestimonial.jsx";
+// Text testimonial form (public facing) is available at frontend site if needed
 import TextTestimonial from "./routes/testimonial/TextTestimonial.jsx";
+import VerifyTestimonialsPage from "./routes/testimonial/VerifyTestimonial.jsx";
 // import { AdminUserVerify } from "../../Admireholidays_backend/src/controller/admin/user.admin.controller.js";
 // import VerifyTestimonialsPage from "./routes/testimonial/VerifyTestimonial.jsx";
 
@@ -125,6 +126,12 @@ function App() {
                         },
                         {
                             path: "text_testimonial",
+                            // Admin view: show list/verification UI
+                            element: <VerifyTestimonialsPage />,
+                        },
+                        {
+                            path: "text_testimonial/create",
+                            // Provide access to the submission form as well
                             element: <TextTestimonial />,
                         },
                         {

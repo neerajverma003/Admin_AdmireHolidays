@@ -85,7 +85,11 @@ export const navbarLinks = [
             { label: "Verified Testimonials List", icon: CheckCircle2, path: "/verified_testimonials_list" },
         ],
     },
-
+    {
+        title: "Create Text Testimonial",
+        icon: FileText,
+        path: "/text_testimonial/create",
+    },
     {
         title: "Blog",
         links: [

@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { Trash2 } from "lucide-react";
 
 const VerifyTestimonialsPage = () => {
   const [testimonials, setTestimonials] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch all testimonials from backend
+  // Fetch all text testimonials from backend
   const fetchTestimonials = async () => {
     try {
-      const res = await axios.get("/api/v1/testimonials"); // replace with your API
+      const res = await axios.get("/api/v1/text-testimonials");
       setTestimonials(res.data.data || []);
       setLoading(false);
     } catch (err) {
@@ -24,7 +25,7 @@ const VerifyTestimonialsPage = () => {
   // Toggle verification status
   const toggleVerify = async (testimonialId, currentStatus) => {
     try {
-      await axios.patch(`/api/v1/testimonials/${testimonialId}/verify`, {
+      await axios.patch(`/api/v1/text-testimonials/${testimonialId}/verify`, {
         toShow: !currentStatus,
       });
       // Update UI
@@ -39,6 +40,22 @@ const VerifyTestimonialsPage = () => {
     }
   };
 
+  // Delete testimonial
+  const deleteTestimonial = async (testimonialId) => {
+    if (!window.confirm("Are you sure you want to delete this testimonial?")) {
+      return;
+    }
+    try {
+      await axios.delete(`/api/v1/text-testimonials/${testimonialId}`);
+      // Remove from UI
+      setTestimonials((prev) => prev.filter((t) => t._id !== testimonialId));
+      alert("Testimonial deleted successfully");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to delete testimonial");
+    }
+  };
+
   if (loading) {
     return <div className="text-center mt-10">Loading...</div>;
   }
@@ -46,7 +63,7 @@ const VerifyTestimonialsPage = () => {
   return (
     <div className="max-w-6xl mx-auto p-4">
       <h2 className="text-2xl font-bold mb-6 text-center">
-        Verify Testimonials
+        Text Testimonials
       </h2>
 
       {testimonials.length === 0 ? (
@@ -79,16 +96,25 @@ const VerifyTestimonialsPage = () => {
               </p>
               <p className="text-sm text-yellow-500 mb-2">Rating: {testimonial.rating}⭐</p>
 
-              <button
-                onClick={() => toggleVerify(testimonial._id, testimonial.toShow)}
-                className={`mt-auto py-2 px-4 rounded ${
-                  testimonial.toShow
-                    ? "bg-red-500 hover:bg-red-600 text-white"
-                    : "bg-green-500 hover:bg-green-600 text-white"
-                } transition`}
-              >
-                {testimonial.toShow ? "Unverify" : "Verify"}
-              </button>
+              <div className="flex gap-2 mt-auto">
+                <button
+                  onClick={() => toggleVerify(testimonial._id, testimonial.toShow)}
+                  className={`flex-1 py-2 px-4 rounded ${
+                    testimonial.toShow
+                      ? "bg-red-500 hover:bg-red-600 text-white"
+                      : "bg-green-500 hover:bg-green-600 text-white"
+                  } transition`}
+                >
+                  {testimonial.toShow ? "Unverify" : "Verify"}
+                </button>
+                <button
+                  onClick={() => deleteTestimonial(testimonial._id)}
+                  className="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded transition"
+                  title="Delete testimonial"
+                >
+                  <Trash2 size={18} />
+                </button>
+              </div>
             </div>
           ))}
         </div>
