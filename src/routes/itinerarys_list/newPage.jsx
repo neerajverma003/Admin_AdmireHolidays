@@ -87,22 +87,16 @@ const ItineraryDetailsPage = () => {
             const formDataToSend = new FormData();
 
             Object.entries(formData).forEach(([key, value]) => {
-                if (["days_information", "classification", "itinerary_theme"].includes(key)) {
-                    // JSON fields
+                if (["days_information", "classification", "itinerary_theme", "destination_images", "destination_thumbnails"].includes(key)) {
+                    // JSON fields - send as JSON strings
                     formDataToSend.append(key, JSON.stringify(value));
-                } else if (["destination_images", "destination_thumbnails"].includes(key)) {
-                    // Preserve both old URLs and new files
-                    value.forEach((item) => {
-                        if (typeof item === "string") {
-                            // Already uploaded image → keep it
-                            formDataToSend.append(`${key}[]`, item);
-                        } else if (item instanceof File) {
-                            // New upload
-                            formDataToSend.append(key, item);
-                        }
-                    });
+                } else if (key === "destination_video") {
+                    // Handle video file separately - don't JSON stringify
+                    if (value instanceof File) {
+                        formDataToSend.append(key, value);
+                    }
                 } else if (key === "selected_destination_id") {
-                    formDataToSend.append("selected_destination", value);
+                    formDataToSend.append("selected_destination_id", value);
                 } else if (value !== null && value !== undefined && key !== "selected_destination_name" && key !== "selected_destination") {
                     formDataToSend.append(key, value);
                 }
@@ -114,7 +108,7 @@ const ItineraryDetailsPage = () => {
             setIsEditing(false);
         } catch (error) {
             toast.error("Failed to update itinerary");
-            // console.error("Update failed:", error);
+            console.error("Update failed:", error);
         } finally {
             setIsLoading(false);
         }

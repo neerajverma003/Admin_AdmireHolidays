@@ -316,11 +316,17 @@ const CreateItineriesPage = () => {
         const toastId = toast.loading("Creating your itinerary...");
         const formDataToSend = new FormData();
 
-        // Basic fields
+        // Append basic fields
         Object.entries(formData).forEach(([key, value]) => {
-            if (Array.isArray(value) || typeof value === "object") {
+            if (key === "video") {
+                // Handle video file separately - don't JSON stringify
+                if (value instanceof File) {
+                    formDataToSend.append(key, value);
+                }
+            } else if (Array.isArray(value) || (typeof value === "object" && value !== null)) {
+                // JSON stringify arrays and objects
                 formDataToSend.append(key, JSON.stringify(value));
-            } else if (value !== null) {
+            } else if (value !== null && value !== undefined) {
                 formDataToSend.append(key, value);
             }
         });

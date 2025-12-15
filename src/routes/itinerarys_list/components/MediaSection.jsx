@@ -79,6 +79,33 @@ const MediaSection = ({ formData, setFormData, styles }) => {
         if (fileInput) fileInput.value = "";
     };
 
+    const handleDirectImageUpload = (e, type) => {
+        const files = Array.from(e.target.files || []);
+        if (files.length === 0) return;
+
+        files.forEach((file) => {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const dataUrl = event.target?.result;
+                setFormData((prev) => ({
+                    ...prev,
+                    [type]: [...prev[type], dataUrl],
+                }));
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Reset input
+        e.target.value = "";
+    };
+
+    const handleRemoveDirectImage = (index, type) => {
+        setFormData((prev) => ({
+            ...prev,
+            [type]: prev[type].filter((_, i) => i !== index),
+        }));
+    };
+
     const renderImageGrid = (images, selectedImages, onToggle, type) => {
         if (isLoading) return <p className="text-sm italic text-gray-500">Loading images...</p>;
         if (images.length === 0) return <p className="text-sm italic text-gray-500">No images found for this destination.</p>;
@@ -173,6 +200,82 @@ const MediaSection = ({ formData, setFormData, styles }) => {
                             Select / Remove Destination Images
                         </label>
                         {renderImageGrid(galleryImages, formData.destination_images || [], handleImageToggle, "gallery")}
+                    </div>
+
+                    {/* Direct Upload Destination Images */}
+                    <div className="space-y-3 pt-4 border-t border-gray-300">
+                        <label className={labelStyle}>
+                            <ImageIcon
+                                className="text-muted-foreground mr-1 inline"
+                                size={16}
+                            />
+                            Or Upload Your Own Destination Images
+                        </label>
+                        <input
+                            id="direct-images-upload"
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            onChange={(e) => handleDirectImageUpload(e, "destination_images")}
+                            className="block w-full cursor-pointer text-sm text-gray-500 file:mr-4 file:rounded-md file:border-0 file:bg-green-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-green-700 hover:file:bg-green-100"
+                        />
+                        {/* Display uploaded images */}
+                        {Array.isArray(formData.destination_images) && formData.destination_images.some(img => typeof img === 'string' && img.startsWith('data:')) && (
+                            <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5 pt-4">
+                                {formData.destination_images.map((img, idx) => 
+                                    typeof img === 'string' && img.startsWith('data:') ? (
+                                        <div key={`upload-${idx}`} className="relative rounded-md border-2 border-green-300 overflow-hidden">
+                                            <img src={img} alt={`uploaded-${idx}`} className="h-20 w-full object-cover" />
+                                            <button
+                                                type="button"
+                                                onClick={() => handleRemoveDirectImage(idx, "destination_images")}
+                                                className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                                            >
+                                                <X size={14} />
+                                            </button>
+                                        </div>
+                                    ) : null
+                                )}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Direct Upload Thumbnail Images */}
+                    <div className="space-y-3 pt-4 border-t border-gray-300">
+                        <label className={labelStyle}>
+                            <ImageIcon
+                                className="text-muted-foreground mr-1 inline"
+                                size={16}
+                            />
+                            Or Upload Your Own Thumbnail Images
+                        </label>
+                        <input
+                            id="direct-thumbnails-upload"
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            onChange={(e) => handleDirectImageUpload(e, "destination_thumbnails")}
+                            className="block w-full cursor-pointer text-sm text-gray-500 file:mr-4 file:rounded-md file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100"
+                        />
+                        {/* Display uploaded images */}
+                        {Array.isArray(formData.destination_thumbnails) && formData.destination_thumbnails.some(img => typeof img === 'string' && img.startsWith('data:')) && (
+                            <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5 pt-4">
+                                {formData.destination_thumbnails.map((img, idx) => 
+                                    typeof img === 'string' && img.startsWith('data:') ? (
+                                        <div key={`thumb-upload-${idx}`} className="relative rounded-md border-2 border-blue-300 overflow-hidden">
+                                            <img src={img} alt={`thumb-${idx}`} className="h-20 w-full object-cover" />
+                                            <button
+                                                type="button"
+                                                onClick={() => handleRemoveDirectImage(idx, "destination_thumbnails")}
+                                                className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                                            >
+                                                <X size={14} />
+                                            </button>
+                                        </div>
+                                    ) : null
+                                )}
+                            </div>
+                        )}
                     </div>
                 </>
             ) : (
