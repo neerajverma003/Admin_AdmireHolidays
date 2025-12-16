@@ -50,14 +50,13 @@ export const useHeroVideoStore = create((set, get) => ({
     }
   },
 
-  updateVisibility: async (videoId, currentVisibility, page) => {
-    const newVisibility = currentVisibility === 'Public' ? 'Private' : 'Public';
+  updateVisibility: async (videoId) => {
     try {
       const response = await apiClient.patch(`/admin/hero-section/${videoId}`, {
-        title: get().title
+        title: get().title,
       });
       if (response.data.success) {
-        toast.success(`Video is now ${response.data.msg}.`);
+        toast.success(response.data.msg || 'Visibility toggled.');
         get().fetchVideos(get().title); // Refresh the list for the current page
       } else {
         throw new Error(response.data.msg || 'Failed to update visibility.');

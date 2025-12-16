@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
-const ResortForm = () => {
+// Accept optional prop `editId` to enable edit mode when provided
+const ResortForm = ({ editId }) => {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -31,6 +33,10 @@ const ResortForm = () => {
 
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
+  const navigate = useNavigate();
+  const id = editId; // use prop instead of route hook
+  const [existingImages, setExistingImages] = useState([]); // URLs when editing
+  const [removedImageIndexes, setRemovedImageIndexes] = useState([]); // track which images to remove
 
   const styleProps = {
     inputStyle:
@@ -63,11 +69,14 @@ const ResortForm = () => {
     }
   };
 
- const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
      if (!formData.images || formData.images.length === 0) {
-    return alert("Please select at least one image");
-  }
+      // If creating and no images provided, require at least one
+      if (!id && (!existingImages || existingImages.length === 0)) {
+        return alert("Please select at least one image");
+      }
+    }
 
   try {
     const payload = new FormData();
@@ -89,6 +98,11 @@ const ResortForm = () => {
     payload.append("tags", JSON.stringify(formData.tags));
     payload.append("activities", JSON.stringify(formData.activities));
 
+    // Track which existing images to remove (editing mode)
+    if (id && removedImageIndexes.length > 0) {
+      payload.append("removedImageIndexes", JSON.stringify(removedImageIndexes));
+    }
+
     payload.append("visibility", formData.visibility);
     payload.append("discount", formData.discount);
     payload.append("check_in_time", formData.check_in_time);
@@ -99,30 +113,144 @@ const ResortForm = () => {
     payload.append("contact_phone", formData.contact_phone);
     payload.append("is_featured", formData.is_featured);
 
-    // Append multiple images
-    for (let i = 0; i < formData.images.length; i++) {
-      payload.append("images", formData.images[i]);
+    // Append multiple images (only if new files selected)
+    if (formData.images && formData.images.length > 0) {
+      for (let i = 0; i < formData.images.length; i++) {
+        payload.append("images", formData.images[i]);
+      }
     }
 
-    const response = await fetch("http://localhost:5000/resort/resort", {
-      method: "POST",
+    const url = id
+      ? `http://localhost:5000/resort/update/${id}`
+      : "http://localhost:5000/resort/resort";
+
+    const method = id ? "PATCH" : "POST";
+
+    const response = await fetch(url, {
+      method,
       body: payload,
     });
 
     if (!response.ok) {
       const text = await response.text();
-      // console.error("Server response not OK:", text);
+      console.error("Server response not OK:", text);
       return;
     }
 
     const data = await response.json();
-    // console.log("Product added:", data);
 
-    // Reset form or do whatever you want after success
+    // After successful update/create, navigate back to resort list
+    navigate("/resorts_list");
   } catch (error) {
     // console.error("Error uploading product:", error);
   }
 };
+
+  // If editing, fetch existing resort data and populate form
+  useEffect(() => {
+    const load = async () => {
+      if (!id) return;
+      try {
+        const res = await fetch(`http://localhost:5000/resort/get/${id}`);
+        if (!res.ok) throw new Error("Failed to fetch resort");
+        const json = await res.json();
+        // controller returns { success: true, data: ... }
+        const resort = json.data || json;
+
+        // helper to normalize array-like fields that may be stored as
+        // arrays, JSON strings, comma-separated strings, or single value
+        const parseArrayField = (field) => {
+          const result = [];
+          
+          const processValue = (val) => {
+            if (typeof val === "string") {
+              // Skip if it looks like JSON array/object (starts with [ or {)
+              if (val.trim().startsWith("[") || val.trim().startsWith("{")) {
+                try {
+                  const parsed = JSON.parse(val);
+                  if (Array.isArray(parsed)) {
+                    parsed.forEach((item) => processValue(item));
+                  } else if (typeof parsed === "string") {
+                    processValue(parsed);
+                  }
+                } catch (e) {
+                  // Invalid JSON, skip it
+                }
+                return;
+              }
+
+              // Comma-separated values
+              if (val.includes(",")) {
+                val.split(",").forEach((s) => {
+                  const trimmed = s.trim().replace(/^["']|["']$/g, ""); // remove quotes
+                  if (trimmed && !trimmed.startsWith("[") && !trimmed.startsWith("{")) {
+                    result.push(trimmed);
+                  }
+                });
+                return;
+              }
+
+              // Single value string
+              const trimmed = val.trim().replace(/^["']|["']$/g, "");
+              if (trimmed && !trimmed.startsWith("[") && !trimmed.startsWith("{")) {
+                result.push(trimmed);
+              }
+            }
+          };
+
+          if (Array.isArray(field)) {
+            field.forEach((item) => processValue(item));
+          } else if (typeof field === "string") {
+            processValue(field);
+          }
+
+          // Remove duplicates
+          return Array.from(new Set(result));
+        };
+
+        // Map fields into formData shape, normalizing the array fields
+        setFormData((prev) => ({
+          ...prev,
+          title: resort.title || "",
+          description: resort.description || "",
+          price_per_night: resort.price_per_night || 0,
+          is_active: resort.is_active ?? true,
+          address: resort.address || "",
+          city: resort.city || "",
+          state: resort.state || "",
+          country: resort.country || "",
+          average_rating: resort.average_rating || 0,
+          review_count: resort.review_count || 0,
+          number_of_ratings: resort.number_of_ratings || 0,
+          amenities: parseArrayField(resort.amenities),
+          tags: parseArrayField(resort.tags),
+          activities: parseArrayField(resort.activities),
+          visibility: resort.visibility || "public",
+          discount: resort.discount || 0,
+          check_in_time: resort.check_in_time || "",
+          check_out_time: resort.check_out_time || "",
+          availability_status: resort.availability_status || "Available",
+          policies: resort.policies || "",
+          contact_email: resort.contact_email || "",
+          contact_phone: resort.contact_phone || "",
+          is_featured: resort.is_featured ?? false,
+        }));
+
+        // normalize images to array of URLs
+        const imgs = resort.images;
+        const normalizedImages = Array.isArray(imgs)
+          ? imgs
+          : typeof imgs === "string" && imgs.trim()
+          ? [imgs.trim()]
+          : [];
+        setExistingImages(normalizedImages);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    load();
+  }, [id]);
 
   // Same as before: options for checkboxes
   const amenityOptions = ["Pool", "Wi-Fi", "Gym", "Spa"];
@@ -132,7 +260,7 @@ const ResortForm = () => {
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white p-4 sm:p-6 lg:p-8">
       <div className="max-w-4xl mx-auto">
-        <h1 className="mb-6 text-3xl font-bold">Create Resort</h1>
+        <h1 className="mb-6 text-3xl font-bold">{id ? "Edit Resort" : "Create Resort"}</h1>
 
         {message && (
           <div
@@ -220,24 +348,28 @@ const ResortForm = () => {
                 ["amenities", amenityOptions],
                 ["tags", tagOptions],
                 ["activities", activityOptions],
-              ].map(([key, options]) => (
-                <fieldset key={key}>
-                  <legend className="font-medium capitalize mb-2">{key}</legend>
-                  {options.map((item) => (
-                    <label key={item} className="block text-sm mb-1">
-                      <input
-                        type="checkbox"
-                        name={key}
-                        value={item}
-                        checked={formData[key].includes(item)}
-                        onChange={handleChange}
-                        className="mr-2"
-                      />
-                      {item}
-                    </label>
-                  ))}
-                </fieldset>
-              ))}
+              ].map(([key, options]) => {
+                // Merge hardcoded options with any stored values not in the hardcoded list
+                const allOptions = Array.from(new Set([...options, ...formData[key]]));
+                return (
+                  <fieldset key={key}>
+                    <legend className="font-medium capitalize mb-2">{key}</legend>
+                    {allOptions.map((item) => (
+                      <label key={item} className="block text-sm mb-1">
+                        <input
+                          type="checkbox"
+                          name={key}
+                          value={item}
+                          checked={formData[key].includes(item)}
+                          onChange={handleChange}
+                          className="mr-2"
+                        />
+                        {item}
+                      </label>
+                    ))}
+                  </fieldset>
+                );
+              })}
             </div>
           </div>
 
@@ -252,6 +384,35 @@ const ResortForm = () => {
               onChange={handleChange}
               className={styleProps.inputStyle}
             />
+            {existingImages && existingImages.length > 0 && (
+              <div className="mt-2 flex gap-2 flex-wrap">
+                {existingImages.map((src, idx) => (
+                  <div key={idx} className="relative h-20 w-20 group">
+                    <img
+                      src={src}
+                      alt={`existing-${idx}`}
+                      className={`h-20 w-20 object-cover rounded border ${
+                        removedImageIndexes.includes(idx) ? "opacity-30" : ""
+                      }`}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setRemovedImageIndexes((prev) =>
+                          prev.includes(idx)
+                            ? prev.filter((i) => i !== idx)
+                            : [...prev, idx]
+                        );
+                      }}
+                      className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-sm font-bold"
+                      title="Remove image"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
             <p className="text-sm text-gray-500 mt-1">
               * Upload images which will be sent to the server
             </p>

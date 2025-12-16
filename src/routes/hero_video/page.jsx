@@ -83,8 +83,8 @@ const HeroVideoUpload = () => {
     deleteVideo(videoId, activePage);
   };
 
-  const handleVisibilityChange = (videoId, currentVisibility) => {
-    updateVisibility(videoId, currentVisibility);
+  const handleVisibilityChange = (videoId) => {
+    updateVisibility(videoId);
   };
 
   const inputStyle =
@@ -240,16 +240,26 @@ const HeroVideoUpload = () => {
                   </div>
                   <div className="flex items-center gap-4">
                     <button
-                      onClick={() => handleVisibilityChange(v._id, visibility)}
-                      className="flex items-center gap-2 text-sm"
-                      title={`Click to make ${v.visibility === 'public' ? 'private' : 'public'}`}
+                      onClick={() => handleVisibilityChange(v._id)}
+                      className="flex items-center gap-3"
+                      title={`Click to make ${v.visibility === 'Public' ? 'Private' : 'Public'}`}
+                      aria-pressed={v.visibility === 'Public'}
                     >
-                      {v.visibility === 'public' ? (
-                        <ToggleRight className="h-6 w-6 text-green-500" />
-                      ) : (
-                        <ToggleLeft className="h-6 w-6 text-gray-500" />
-                      )}
-                      <span className="capitalize">{v.visibility}</span>
+                      {/* Animated toggle */}
+                      <span
+                        role="switch"
+                        aria-checked={v.visibility === 'Public'}
+                        className={`relative inline-flex items-center h-6 w-12 rounded-full transition-colors duration-200 focus:outline-none ${
+                          v.visibility === 'Public' ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600'
+                        }`}
+                      >
+                        <span
+                          className={`inline-block h-5 w-5 transform bg-white rounded-full shadow-sm transition-transform duration-200 ${
+                            v.visibility === 'Public' ? 'translate-x-6' : 'translate-x-1'
+                          }`}
+                        />
+                      </span>
+                      <span className="capitalize text-sm">{v.visibility}</span>
                     </button>
                     <button
                       onClick={() => handleDelete(v._id)}

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { useNavigate } from "react-router-dom";
-import EditPage from "./EditPage.jsx"
+// import EditPage from "./EditPage.jsx" // not needed
 const Subscribe = () => {
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -16,7 +16,7 @@ const Subscribe = () => {
       if (!res.ok) throw new Error("Failed to fetch resorts");
       const json = await res.json();
       setData(json);
-      navigate(EditPage)
+      // don't navigate here; we only fetch and set data
     } catch (err) {
       setError(err.message || "Something went wrong");
     } finally {
