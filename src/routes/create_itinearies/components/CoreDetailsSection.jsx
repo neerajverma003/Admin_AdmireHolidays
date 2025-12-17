@@ -24,7 +24,7 @@ const CoreDetailsSection = ({ formData, handleInputChange, styles }) => {
         "Women Group",
         "Special Interest",
     ];
-    const classification_types = ["Trending", "Exclusive","weekend"];
+    const classification_types = ["Trending", "Exclusive", "weekend", "Top Selling"];
 
     const { destinationList, fetchDestinationList, isListLoading } = usePlaceStore();
 

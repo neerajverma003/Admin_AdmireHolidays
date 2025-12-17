@@ -44,13 +44,13 @@ export const navbarLinks = [
             // { label: "Destination List", icon: LayoutList, path: "/destination_list" },
         ],
     },
-    {
-        title: "Image Gallery",
-        links: [
-            { label: "Image Gallery", icon: Images, path: "/image_gallery" },
-            { label: "View Image Gallery", icon: Images, path: "/view_image_gallery" },
-        ],
-    },
+    // {
+    //     title: "Image Gallery",
+    //     links: [
+    //         { label: "Image Gallery", icon: Images, path: "/image_gallery" },
+    //         { label: "View Image Gallery", icon: Images, path: "/view_image_gallery" },
+    //     ],
+    // },
     {
         title: "Hero Video",
         links: [{ label: "Hero Video", icon: FileVideo2, path: "/hero_video" }],

@@ -36,8 +36,8 @@ const CustomerGallery = () => {
 
   const handleImageChange = (e) => {
     const selectedFiles = Array.from(e.target.files);
-    if (selectedFiles.length + newImages.length > 20) {
-      toast.warn("You can upload a maximum of 20 images.");
+    if (selectedFiles.length + newImages.length > 50) {
+      toast.warn("You can upload a maximum of 50 images.");
       return;
     }
     setNewImages((prev) => [...prev, ...selectedFiles]);
@@ -142,12 +142,12 @@ const CustomerGallery = () => {
           </h1>
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Upload New Images (Max 20)
+              Upload New Images (Max 50)
             </label>
             <label htmlFor="imageUpload" className="flex flex-col items-center justify-center gap-2 cursor-pointer rounded-md border-2 border-dashed border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 p-6 text-center transition hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950">
               <ImagePlus size={36} className="text-blue-600 dark:text-blue-400" />
               <span className="text-gray-700 dark:text-gray-300 text-sm">Click to upload images</span>
-              <span className="text-sm text-gray-500 dark:text-gray-400">{newImages.length} / 20 selected</span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">{newImages.length} / 50 selected</span>
               <input id="imageUpload" type="file" accept="image/*" multiple onChange={handleImageChange} className="hidden" />
             </label>
           </div>

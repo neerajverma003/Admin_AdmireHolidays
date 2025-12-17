@@ -182,21 +182,29 @@ const EditDestination = () => {
                     />
                 </div>
 
-                {/* Existing Images with show_image checkboxes */}
-                {data.existingImages.length > 0 && (
+                {/* Existing Images + New Images Preview */}
+                {(data.existingImages.length > 0 || data.image.length > 0) && (
                     <div>
-                        <h2 className="mb-2 mt-4 font-medium text-gray-700 dark:text-gray-300">Existing Images</h2>
+                        <h2 className="mb-2 mt-4 font-medium text-gray-700 dark:text-gray-300">
+                            Images 
+                            {data.image.length > 0 && <span className="text-blue-600"> ({data.existingImages.length} existing + {data.image.length} new)</span>}
+                        </h2>
                         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+                            {/* ✅ OLD IMAGES FROM SERVER */}
                             {data.existingImages.map((img, idx) => (
-                                <div key={idx} className="group relative rounded-md border p-1">
+                                <div key={`existing-${idx}`} className="group relative rounded-md border p-1 bg-gray-50 dark:bg-gray-800">
                                     <img src={img} alt={`Existing ${idx}`} className="h-28 w-full object-cover rounded-md" />
                                     
+                                    {/* Badge for existing image */}
+                                    <span className="absolute top-1 left-1 bg-green-500 text-white text-xs px-2 py-1 rounded">Existing</span>
+
                                     {/* Show Image Checkbox */}
-                                    <label className="absolute left-1 top-1 bg-white/80 p-1 rounded">
+                                    <label className="absolute left-1 bottom-1 bg-white/80 p-1 rounded" title="Show this image">
                                         <input
                                             type="checkbox"
                                             checked={data.show_image.includes(img)}
                                             onChange={() => handleShowImageToggle(img)}
+                                            className="w-4 h-4"
                                         /> 
                                     </label>
 
@@ -205,6 +213,37 @@ const EditDestination = () => {
                                         type="button"
                                         onClick={() => handleDeleteImage(img)}
                                         className="absolute right-1 top-1 rounded-full bg-red-600 p-1 text-xs text-white opacity-0 shadow-md transition group-hover:opacity-100"
+                                        title="Delete this image"
+                                    >
+                                        ✕
+                                    </button>
+                                </div>
+                            ))}
+
+                            {/* ✅ NEW IMAGES FROM FILE INPUT */}
+                            {data.image.map((file, idx) => (
+                                <div key={`new-${idx}`} className="group relative rounded-md border-2 border-blue-500 p-1 bg-blue-50 dark:bg-blue-900/20">
+                                    <img 
+                                        src={URL.createObjectURL(file)} 
+                                        alt={`New ${idx}`} 
+                                        className="h-28 w-full object-cover rounded-md"
+                                        onLoad={(e) => URL.revokeObjectURL(e.target.src)}
+                                    />
+                                    
+                                    {/* Badge for new image */}
+                                    <span className="absolute top-1 left-1 bg-blue-600 text-white text-xs px-2 py-1 rounded">New</span>
+
+                                    {/* Remove from selection button */}
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setData((prev) => ({
+                                                ...prev,
+                                                image: prev.image.filter((_, i) => i !== idx),
+                                            }));
+                                        }}
+                                        className="absolute right-1 top-1 rounded-full bg-red-600 p-1 text-xs text-white opacity-0 shadow-md transition group-hover:opacity-100"
+                                        title="Remove this image"
                                     >
                                         ✕
                                     </button>

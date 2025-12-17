@@ -330,8 +330,18 @@ const ViewImageGallery = () => {
             setIsLoading(true);
             try {
                 const response = await apiClient.get(`/admin/image-Gallery/${selectedDestinationId}`);
+                console.log("Image Gallery Response:", response.data);
+
+                // ✅ Handle both success and "no images" cases gracefully
+                if (!response.data.success) {
+                    console.warn("API returned success:false", response.data.msg);
+                    setAllImages([]);
+                    setIsLoading(false);
+                    return;
+                }
 
                 const imageUrls = response.data?.imageGalleryData?.image || [];
+                console.log("Extracted image URLs:", imageUrls);
 
                 const transformedImages = imageUrls.map((url) => ({
                     id: url,
@@ -341,8 +351,15 @@ const ViewImageGallery = () => {
 
                 setAllImages(transformedImages);
             } catch (error) {
-                toast.error(error.response?.data?.message || "Image not available for this destination.");
-                setAllImages([]);
+                console.error("Fetch error:", error.response?.data || error.message);
+                // ✅ Only show error toast for actual errors, not 404 for missing gallery
+                if (error.response?.status === 404) {
+                    console.log("No image gallery found for this destination - showing empty gallery");
+                    setAllImages([]);
+                } else {
+                    toast.error(error.response?.data?.message || error.response?.data?.msg || "Failed to fetch images.");
+                    setAllImages([]);
+                }
             } finally {
                 setIsLoading(false);
             }

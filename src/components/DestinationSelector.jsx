@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useRef } from "react";
 import { usePlaceStore } from "@/stores/usePlaceStore"; // Adjust path if necessary
 import { toast } from "react-toastify";
 
@@ -10,6 +10,7 @@ const DestinationSelector = ({
   required = false,
 }) => {
   const [travelType, setTravelType] = useState(defaultType);
+  const prevTravelTypeRef = useRef(defaultType); // Track previous travel type
 
   const {
     destinationList,
@@ -17,7 +18,7 @@ const DestinationSelector = ({
     fetchDestinationList,
   } = usePlaceStore();
 
-  // --- LOGIC (Unchanged) ---
+  // --- LOGIC ---
   // Fetch destination list whenever travel type changes
   useEffect(() => {
     const loadDestinations = async () => {
@@ -25,16 +26,22 @@ const DestinationSelector = ({
         await fetchDestinationList(travelType);
       } catch (err) {
         console.error("Failed to fetch destinations", err);
-        // Avoid toast spam on every type change error if desired
-        // toast.error("Failed to load destinations"); 
       }
     };
     loadDestinations();
-    // Reset the parent component's selected destination ID
-    if (onChange) {
-        onChange(""); 
+  }, [travelType, fetchDestinationList]);
+
+  // ✅ FIXED: Separate effect to reset selection ONLY when travel type changes
+  // Removes onChange from dependencies to prevent infinite loop
+  useEffect(() => {
+    // Only reset if travel type actually changed (not on initial render)
+    if (travelType !== prevTravelTypeRef.current) {
+      prevTravelTypeRef.current = travelType;
+      if (onChange) {
+        onChange(""); // Reset destination when travel type changes
+      }
     }
-  }, [travelType, fetchDestinationList]); // Dependencies remain correct
+  }, [travelType, onChange]);
 
   // Memoize dropdown options for performance
   const destinationOptions = useMemo(() => {
