@@ -155,7 +155,7 @@ const EditDestination = () => {
                 <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Categories</label>
                     <div className="flex flex-wrap gap-4">
-                        {["trending", "exclusive", "weekend", "home"].map((opt) => (
+                        {["trending", "exclusive", "weekend", "home", "honeymoon"].map((opt) => (
                             <label key={opt} className="flex items-center gap-2">
                                 <input
                                     type="checkbox"
@@ -164,7 +164,7 @@ const EditDestination = () => {
                                     checked={data.destination_type.includes(opt)}
                                     onChange={handleChange}
                                 />
-                                <span>{opt}</span>
+                                <span>{opt.charAt(0).toUpperCase() + opt.slice(1)}</span>
                             </label>
                         ))}
                     </div>

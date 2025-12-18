@@ -15,7 +15,8 @@ import {
     Building2,
     Megaphone,
     MailCheck,
-    CheckCircle2
+    CheckCircle2,
+    Play
 } from "lucide-react";
 
 import ProfileImage from "@/assets/profile-image.jpg";
@@ -76,7 +77,10 @@ export const navbarLinks = [
     },
     {
         title: "Testimonials Videos",
-        links: [{ label: "Testimonial Video", icon: FileVideo2, path: "/video_testimonials_upload" }],
+        links: [
+            { label: "Testimonial Video", icon: FileVideo2, path: "/video_testimonials_upload" },
+            { label: "Testimonial List", icon: Play, path: "/testimonial_list" },
+        ],
     },
     {
         title: "Testimonials Text",

@@ -34,6 +34,7 @@ import ImageGallery from "./routes/image_gallery/page";
 import CreateResort from "./routes/create_resort/ResortForm.jsx";
 import ResortList from "./routes/resort_list/ResortList.jsx";
 import ResortEdit from "./routes/resort_list/EditPage.jsx";
+import TestimonialListPage from "./routes/testimonial_list/page.jsx";
 // stores
 import useAuthStore from "./stores/authStore";
 import ViewImageGallery from "./routes/view_image_gallery/page";
@@ -119,6 +120,10 @@ function App() {
                         {
                             path: "video_testimonials_upload",
                             element: <UploadVideoTestimonial />,
+                        },
+                        {
+                            path: "testimonial_list",
+                            element: <TestimonialListPage />,
                         },
                         {
                             path: "create_resort",

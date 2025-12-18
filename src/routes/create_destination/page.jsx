@@ -156,7 +156,7 @@ const CreateDestination = () => {
                             Destination Categories
                         </label>
                         <div className="flex flex-wrap gap-4">
-                            {["trending", "exclusive", "weekend", "home"].map((option) => (
+                            {["trending", "exclusive", "weekend", "home", "honeymoon"].map((option) => (
                                 <label key={option} className="flex items-center gap-2">
                                     <input
                                         type="checkbox"
