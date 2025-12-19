@@ -19,6 +19,7 @@ const InclusionSection = ({ formData, handleInputChange, styles }) => {
         onChange={handleInputChange}
         className={inputStyle}
         placeholder="Hotel stay, Meals, Airport transfer"
+        maxLength={50000}
       />
     </div>
   );

@@ -19,6 +19,7 @@ const ExclusionSection = ({ formData, handleInputChange, styles }) => {
         onChange={handleInputChange}
         className={inputStyle}
         placeholder="Personal expenses, Travel insurance"
+        maxLength={50000}
       />
     </div>
   );

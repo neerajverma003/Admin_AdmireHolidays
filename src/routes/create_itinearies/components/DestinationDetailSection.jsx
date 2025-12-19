@@ -327,6 +327,7 @@ const DescriptionsSection = ({ formData, handleInputChange, styles, setFormData 
           onChange={handleInputChange}
           className={inputStyle}
           placeholder="Write a short description about the destination..."
+          maxLength={50000}
         />
       </div>
 

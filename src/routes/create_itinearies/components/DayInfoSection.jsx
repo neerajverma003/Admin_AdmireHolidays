@@ -101,6 +101,7 @@ const DayInfoSection = ({
               onChange={(e) => handleArrayChange(e, index, "days_information")}
               className={styles.inputStyle}
               placeholder="Enter location name"
+              maxLength={50000}
             />
           </div>
             <div>
@@ -112,6 +113,7 @@ const DayInfoSection = ({
                 onChange={(e) => handleArrayChange(e, index, "days_information")}
                 className={styles.inputStyle}
                 placeholder="e.g. 1"
+                maxLength={50000}
               />
             </div>
           <div>
@@ -127,6 +129,7 @@ const DayInfoSection = ({
               className={styles.inputStyle}
               placeholder="Enter location details"
               style={{ minHeight: '60px', overflow: 'hidden', resize: 'none' }}
+              maxLength={50000}
             ></textarea>
           </div>
           

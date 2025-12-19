@@ -118,6 +118,7 @@ const PricingMediaSection = ({
             onChange={handleInputChange}
             className={inputStyle}
             placeholder="https://example.com/image.jpg"
+            maxLength={50000}
           />
         </div>
       </div>

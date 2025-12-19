@@ -83,6 +83,7 @@ const CancellationPolicySection = ({ formData, handleInputChange, styles }) => {
         onChange={handleInputChange}
         className={inputStyle}
         placeholder="Auto-filled from API, you can edit..."
+        maxLength={50000}
       />
     </div>
   );

@@ -131,6 +131,7 @@ const CoreDetailsSection = ({ formData, handleInputChange, styles }) => {
                         onChange={handleInputChange}
                         className={inputStyle}
                         required
+                        maxLength={50000}
                     />
                 </div>
 

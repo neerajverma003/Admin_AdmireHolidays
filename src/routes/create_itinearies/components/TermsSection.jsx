@@ -45,6 +45,7 @@ const TermsSection = ({ formData, setFormData, styles }) => {
         readOnly
         className={inputStyle}
         placeholder={loading ? "Loading terms..." : "Auto-filled"}
+        maxLength={50000}
       />
     </div>
   );
