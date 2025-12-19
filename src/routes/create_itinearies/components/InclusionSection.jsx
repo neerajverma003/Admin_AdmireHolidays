@@ -1,6 +1,6 @@
 import { ListPlus } from "lucide-react";
 
-const InclusionSection = ({ formData, handleInputChange, styles }) => {
+const InclusionSection = ({ formData, handleInputChange, styles, errors = {} }) => {
   const { cardStyle, labelStyle, inputStyle } = styles;
 
   return (
@@ -17,10 +17,11 @@ const InclusionSection = ({ formData, handleInputChange, styles }) => {
         rows="4"
         value={formData.inclusion}
         onChange={handleInputChange}
-        className={inputStyle}
+        className={`${inputStyle} ${errors.inclusion ? 'border-red-500 focus:ring-red-500' : ''}`}
         placeholder="Hotel stay, Meals, Airport transfer"
         maxLength={50000}
       />
+      {errors.inclusion && <p className="text-red-500 text-sm mt-1">{errors.inclusion}</p>}
     </div>
   );
 };

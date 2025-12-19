@@ -1,6 +1,6 @@
 import { Ban } from "lucide-react";
 
-const ExclusionSection = ({ formData, handleInputChange, styles }) => {
+const ExclusionSection = ({ formData, handleInputChange, styles, errors = {} }) => {
   const { cardStyle, labelStyle, inputStyle } = styles;
 
   return (
@@ -17,10 +17,11 @@ const ExclusionSection = ({ formData, handleInputChange, styles }) => {
         rows="4"
         value={formData.exclusion}
         onChange={handleInputChange}
-        className={inputStyle}
+        className={`${inputStyle} ${errors.exclusion ? 'border-red-500 focus:ring-red-500' : ''}`}
         placeholder="Personal expenses, Travel insurance"
         maxLength={50000}
       />
+      {errors.exclusion && <p className="text-red-500 text-sm mt-1">{errors.exclusion}</p>}
     </div>
   );
 };

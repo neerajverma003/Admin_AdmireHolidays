@@ -234,7 +234,7 @@ import { useEffect, useState } from "react";
 import { apiClient } from "../../../stores/authStore";
 import { toast } from "react-toastify";
 
-const DescriptionsSection = ({ formData, handleInputChange, styles, setFormData }) => {
+const DescriptionsSection = ({ formData, handleInputChange, styles, setFormData, errors = {} }) => {
   const { cardStyle, labelStyle, inputStyle } = styles;
   const [loading, setLoading] = useState({
     terms: false,
@@ -325,10 +325,11 @@ const DescriptionsSection = ({ formData, handleInputChange, styles, setFormData 
           rows="4"
           value={formData.destination_detail}
           onChange={handleInputChange}
-          className={inputStyle}
+          className={`${inputStyle} ${errors.destination_detail ? 'border-red-500 focus:ring-red-500' : ''}`}
           placeholder="Write a short description about the destination..."
           maxLength={50000}
         />
+        {errors.destination_detail && <p className="text-red-500 text-sm mt-1">{errors.destination_detail}</p>}
       </div>
 
       {/* Inclusions */}

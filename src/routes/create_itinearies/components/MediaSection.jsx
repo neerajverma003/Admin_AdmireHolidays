@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { CheckCircle, GalleryHorizontal, Image as ImageIcon, Video, X } from "lucide-react";
 import { apiClient } from "../../../stores/authStore";
 
-const MediaSection = ({ formData, setFormData, styles }) => {
+const MediaSection = ({ formData, setFormData, styles, errors = {} }) => {
     // console.log("MediaSection formData:", formData);
     const { labelStyle, cardStyle } = styles;
 
@@ -139,6 +139,7 @@ const MediaSection = ({ formData, setFormData, styles }) => {
     return (
         <div className={`mt-8 space-y-6 ${cardStyle}`}>
             <h2 className="border-b border-gray-700 pb-2 text-xl font-semibold">Media</h2>
+            {errors.destination_images && <p className="text-red-500 text-sm">{errors.destination_images}</p>}
 
             {formData.selected_destination_id ? (
                 <>

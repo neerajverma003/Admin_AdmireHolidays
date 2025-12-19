@@ -285,10 +285,17 @@ const CreateItineriesPage = () => {
         video: null,
     });
 
-    // --- Input Handlers ---
+    // --- ERRORS STATE ---
+    const [errors, setErrors] = useState({});
+
+    // --- INPUT HANDLERS ---
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
+        // Clear error for this field when user starts editing
+        if (errors[name]) {
+            setErrors((prev) => ({ ...prev, [name]: "" }));
+        }
     };
 
     const handleArrayChange = (e, index, arrayName) => {
@@ -310,21 +317,83 @@ const CreateItineriesPage = () => {
         setFormData((prev) => ({ ...prev, [arrayName]: newArray }));
     };
 
-    // --- Submit Handler ---
+    // --- VALIDATION FUNCTION ---
+    const validateForm = () => {
+        const newErrors = {};
+
+        // Title validation
+        if (!formData.title || formData.title.trim() === "") {
+            newErrors.title = "Title is required";
+        }
+
+        // Travel type validation
+        if (!formData.travel_type) {
+            newErrors.travel_type = "Travel type is required";
+        }
+
+        // Destination validation
+        if (!formData.selected_destination_id) {
+            newErrors.selected_destination_id = "Destination is required";
+        }
+
+        // Duration validation
+        if (!formData.duration) {
+            newErrors.duration = "Duration is required";
+        }
+
+        // Destination detail validation
+        if (!formData.destination_detail || formData.destination_detail.trim() === "") {
+            newErrors.destination_detail = "Destination detail is required";
+        }
+
+        // Inclusion validation
+        if (!formData.inclusion || formData.inclusion.trim() === "") {
+            newErrors.inclusion = "Inclusions are required";
+        }
+
+        // Exclusion validation
+        if (!formData.exclusion || formData.exclusion.trim() === "") {
+            newErrors.exclusion = "Exclusions are required";
+        }
+
+        // Days information validation
+        const invalidDays = formData.days_information.filter(
+            (day) => !day.locationName?.trim() || !day.locationDetail?.trim()
+        );
+        if (invalidDays.length > 0) {
+            newErrors.days_information =
+                "All days must have location name and location detail filled";
+        }
+
+        // Images validation
+        if (formData.destination_images.length === 0) {
+            newErrors.destination_images = "At least one destination image is required";
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    // --- SUBMIT HANDLER ---
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        // Validate form before submission
+        if (!validateForm()) {
+            toast.error("Please fill in all required fields correctly");
+            return;
+        }
+
         const toastId = toast.loading("Creating your itinerary...");
         const formDataToSend = new FormData();
 
         // Append basic fields
         Object.entries(formData).forEach(([key, value]) => {
             if (key === "video") {
-                // Handle video file separately - don't JSON stringify
                 if (value instanceof File) {
                     formDataToSend.append(key, value);
                 }
             } else if (Array.isArray(value) || (typeof value === "object" && value !== null)) {
-                // JSON stringify arrays and objects
                 formDataToSend.append(key, JSON.stringify(value));
             } else if (value !== null && value !== undefined) {
                 formDataToSend.append(key, value);
@@ -339,6 +408,29 @@ const CreateItineriesPage = () => {
                 isLoading: false,
                 autoClose: 5000,
             });
+            // Reset form
+            setFormData({
+                cancellation_policy: "",
+                classification: ["Trending"],
+                days_information: [{ day: "1", locationName: "", locationDetail: "" }],
+                destination_detail: "",
+                destination_images: [],
+                destination_thumbnails: [],
+                duration: "",
+                exclusion: "",
+                hotel_as_per_category: "",
+                inclusion: "",
+                itinerary_theme: ["Family"],
+                itinerary_type: "flexible",
+                itinerary_visibility: "public",
+                payment_mode: "",
+                pricing: "",
+                selected_destination_id: "",
+                terms_and_conditions: "",
+                title: "",
+                video: null,
+            });
+            setErrors({});
         } catch (error) {
             const errorMessage = error.response?.data?.message || error.message;
             toast.update(toastId, {
@@ -350,7 +442,7 @@ const CreateItineriesPage = () => {
         }
     };
 
-    // --- Dynamic Days ---
+    // --- DYNAMIC DAYS ---
     useEffect(() => {
         if (formData.duration && formData.duration !== "Custom") {
             const { days } = extractDaysAndNights(formData.duration);
@@ -384,6 +476,7 @@ const CreateItineriesPage = () => {
                         formData={formData}
                         handleInputChange={handleInputChange}
                         styles={styleProps}
+                        errors={errors}
                     />
 
                     {/* 2️⃣ Destination Details */}
@@ -391,6 +484,7 @@ const CreateItineriesPage = () => {
                         formData={formData}
                         handleInputChange={handleInputChange}
                         styles={styleProps}
+                        errors={errors}
                     />
 
                     {/* 3️⃣ Media */}
@@ -398,6 +492,7 @@ const CreateItineriesPage = () => {
                         formData={formData}
                         setFormData={setFormData}
                         styles={styleProps}
+                        errors={errors}
                     />
 
                     {/* 4️⃣ Day-wise Plan */}
@@ -407,6 +502,7 @@ const CreateItineriesPage = () => {
                         handleAddItem={handleAddItem}
                         handleRemoveItem={handleRemoveItem}
                         styles={styleProps}
+                        errors={errors}
                     />
 
                     {/* 5️⃣ Inclusion + Exclusion + Pricing */}
@@ -414,12 +510,14 @@ const CreateItineriesPage = () => {
                         formData={formData}
                         handleInputChange={handleInputChange}
                         styles={styleProps}
+                        errors={errors}
                     />
 
                     <ExclusionSection
                         formData={formData}
                         handleInputChange={handleInputChange}
                         styles={styleProps}
+                        errors={errors}
                     />
 
                     {/* 6️⃣ Hotel */}

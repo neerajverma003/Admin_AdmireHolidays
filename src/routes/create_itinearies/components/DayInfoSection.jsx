@@ -4,6 +4,7 @@ const DayInfoSection = ({
   handleAddItem,
   handleRemoveItem,
   styles,
+  errors = {},
 }) => {
   return (
     // <div className={styles.cardStyle}>
@@ -78,6 +79,7 @@ const DayInfoSection = ({
   
   <div className={styles.cardStyle}>
       <h2 className="text-xl font-semibold mb-4">Day-wise Plan</h2>
+      {errors.days_information && <p className="text-red-500 text-sm mb-4">{errors.days_information}</p>}
       {formData.days_information.map((item, index) => (
         <div
           key={index}

@@ -2,7 +2,7 @@ import { Globe, MapPin, Calendar, Eye, Layers, ListChecks, Text } from "lucide-r
 import { useEffect } from "react";
 import { usePlaceStore } from "../../../stores/usePlaceStore";
 
-const CoreDetailsSection = ({ formData, handleInputChange, styles }) => {
+const CoreDetailsSection = ({ formData, handleInputChange, styles, errors = {} }) => {
     const { cardStyle, labelStyle, inputStyle } = styles;
 
     const themes = [
@@ -129,10 +129,11 @@ const CoreDetailsSection = ({ formData, handleInputChange, styles }) => {
                         placeholder="Enter Itinerary Title"
                         value={formData.title}
                         onChange={handleInputChange}
-                        className={inputStyle}
+                        className={`${inputStyle} ${errors.title ? 'border-red-500 focus:ring-red-500' : ''}`}
                         required
                         maxLength={50000}
                     />
+                    {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
                 </div>
 
                 {/* Travel Type and Destination */}
@@ -168,6 +169,7 @@ const CoreDetailsSection = ({ formData, handleInputChange, styles }) => {
                             International
                         </label>
                     </div>
+                    {errors.travel_type && <p className="text-red-500 text-sm mt-1">{errors.travel_type}</p>}
 
                     <label
                         htmlFor="selected_destination_id"
@@ -185,13 +187,12 @@ const CoreDetailsSection = ({ formData, handleInputChange, styles }) => {
                         name="selected_destination_id"
                         id="selected_destination_id"
                         value={formData.selected_destination_id}
-                        onChange={handleDestinationChange} // Use the new handler
-                        className={inputStyle}
+                        onChange={handleDestinationChange}
+                        className={`${inputStyle} ${errors.selected_destination_id ? 'border-red-500 focus:ring-red-500' : ''}`}
                         disabled={isListLoading}
                         required
                     >
                         <option value="">{isListLoading ? "Loading..." : "-- Select Destination --"}</option>
-                        {/* The value is now the place._id for precise lookups */}
                         {destinationList.map((place) => (
                             <option
                                 key={place._id}
@@ -201,6 +202,7 @@ const CoreDetailsSection = ({ formData, handleInputChange, styles }) => {
                             </option>
                         ))}
                     </select>
+                    {errors.selected_destination_id && <p className="text-red-500 text-sm mt-1">{errors.selected_destination_id}</p>}
                     {/* highlight-end */}
                 </div>
 
@@ -221,7 +223,7 @@ const CoreDetailsSection = ({ formData, handleInputChange, styles }) => {
                         id="duration"
                         value={formData.duration}
                         onChange={handleInputChange}
-                        className={inputStyle}
+                        className={`${inputStyle} ${errors.duration ? 'border-red-500 focus:ring-red-500' : ''}`}
                         required
                     >
                         <option value="">-- Select Duration --</option>
@@ -234,6 +236,7 @@ const CoreDetailsSection = ({ formData, handleInputChange, styles }) => {
                         <option value="10 Days / 9 Nights">10 Days / 9 Nights</option>
                         <option value="Custom">Custom</option>
                     </select>
+                    {errors.duration && <p className="text-red-500 text-sm mt-1">{errors.duration}</p>}
 
                     {/* Show only when Custom is selected */}
                     {formData.duration === "Custom" && (
