@@ -19,9 +19,12 @@ const MediaSection = ({ formData, setFormData, styles, errors = {} }) => {
             try {
                 setIsLoading(true);
                 const res = await apiClient.get(`/admin/image-Gallery/${formData.selected_destination_id}`);
-                setGalleryImages(res?.data?.imageGalleryData?.image || []);
+                // Handle both success and no-images responses
+                const images = res?.data?.imageGalleryData?.image || [];
+                setGalleryImages(images);
+                console.log("Fetched gallery images:", images);
             } catch (error) {
-                // console.error("Error fetching gallery images:", error);
+                console.error("Error fetching gallery images:", error);
                 setGalleryImages([]);
             } finally {
                 setIsLoading(false);
@@ -133,7 +136,12 @@ const MediaSection = ({ formData, setFormData, styles, errors = {} }) => {
                 </div>
             );
         }
-        return <p className="text-sm italic text-gray-500">No images found for this destination.</p>;
+        return (
+            <div>
+                <p className="text-sm italic text-gray-500">No images found for this destination.</p>
+                <p className="text-xs text-gray-400 mt-2">💡 Tip: Use "Upload Your Own" section below to add images.</p>
+            </div>
+        );
     };
 
     return (
