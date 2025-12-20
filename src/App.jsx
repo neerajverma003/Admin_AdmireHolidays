@@ -25,6 +25,7 @@ import Suggestions from "./routes/leads/suggetion/page";
 import Subscribe from "./routes/leads/subscribe/page";
 import ContactUs from "./routes/leads/constact_us/page";
 import PlanYourJourney from "./routes/leads/plan_your_journey/page";
+import ConsultationLeads from "./routes/leads/consultation_leads/page";
 import CreateCity from "./routes/create_city/page";
 import DestinationList from "./routes/destination_list/page";
 import CreateDestination from "./routes/create_destination/page";
@@ -178,6 +179,10 @@ function App() {
                         {
                             path: "plan_journey_list",
                             element: <PlanYourJourney />,
+                        },
+                        {
+                            path: "consultation_leads",
+                            element: <ConsultationLeads />,
                         },
                         {
                             path: "create_city",

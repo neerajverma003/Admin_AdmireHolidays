@@ -16,7 +16,8 @@ import {
     Megaphone,
     MailCheck,
     CheckCircle2,
-    Play
+    Play,
+    MessageSquare
 } from "lucide-react";
 
 import ProfileImage from "@/assets/profile-image.jpg";
@@ -113,6 +114,7 @@ export const navbarLinks = [
     {
         title: "Leads",
         links: [
+            { label: "Consultation Requests", icon: MessageSquare, path: "/consultation_leads" },
             { label: "Plan Journey List", icon: Route, path: "/plan_journey_list" },
             { label: "Contacts List", icon: Contact, path: "/contact_list" },
             { label: "Suggestions", icon: Megaphone, path: "/suggestions" },
