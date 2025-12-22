@@ -242,6 +242,7 @@
 
 
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
     CoreDetailsSection,
     DayInfoSection,
@@ -262,6 +263,8 @@ import PaymentModeSection from "./components/PaymentModeSection";
 import CancellationPolicySection from "./components/CancellationPolicySection";
 
 const CreateItineriesPage = () => {
+    const navigate = useNavigate();
+    
     // --- STATE ---
     const [formData, setFormData] = useState({
         cancellation_policy: "",
@@ -437,33 +440,12 @@ const CreateItineriesPage = () => {
                 render: "Itinerary created successfully! 🎉",
                 type: "success",
                 isLoading: false,
-                autoClose: 5000,
+                autoClose: 3000,
             });
-            // Reset form
-            setFormData({
-                cancellation_policy: "",
-                classification: ["Trending"],
-                days_information: [{ day: "1", locationName: "", locationDetail: "" }],
-                destination_detail: "",
-                destination_images: [],
-                destination_images_files: [],
-                destination_thumbnails: [],
-                destination_thumbnails_files: [],
-                duration: "",
-                exclusion: "",
-                hotel_as_per_category: "",
-                inclusion: "",
-                itinerary_theme: ["Family"],
-                itinerary_type: "flexible",
-                itinerary_visibility: "public",
-                payment_mode: "",
-                pricing: "",
-                selected_destination_id: "",
-                terms_and_conditions: "",
-                title: "",
-                video: null,
-            });
-            setErrors({});
+            // Reload the full page after 1 second so user can create another itinerary
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
         } catch (error) {
             const errorMessage = error.response?.data?.message || error.message;
             toast.update(toastId, {
