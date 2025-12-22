@@ -79,13 +79,17 @@ const MediaSection = ({ formData, setFormData, styles, errors = {} }) => {
         const files = Array.from(e.target.files || []);
         if (files.length === 0) return;
 
+        // Keep preview as data URLs for UI, and also store raw File objects so server can receive them
         files.forEach((file) => {
             const reader = new FileReader();
             reader.onload = (event) => {
                 const dataUrl = event.target?.result;
                 setFormData((prev) => ({
                     ...prev,
+                    // preview list (data URLs)
                     [type]: [...prev[type], dataUrl],
+                    // raw files list for upload; store under a parallel key
+                    [`${type}_files`]: [...(prev[`${type}_files`] || []), file],
                 }));
             };
             reader.readAsDataURL(file);

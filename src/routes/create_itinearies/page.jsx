@@ -269,7 +269,9 @@ const CreateItineriesPage = () => {
         days_information: [{ day: "1", locationName: "", locationDetail: "" }],
         destination_detail: "",
         destination_images: [],
+        destination_images_files: [],
         destination_thumbnails: [],
+        destination_thumbnails_files: [],
         duration: "",
         exclusion: "",
         hotel_as_per_category: "",
@@ -387,11 +389,26 @@ const CreateItineriesPage = () => {
         const toastId = toast.loading("Creating your itinerary...");
         const formDataToSend = new FormData();
 
-        // Append basic fields
+        // Append basic fields (skip raw file arrays - they'll be appended separately)
         Object.entries(formData).forEach(([key, value]) => {
             if (key === "video") {
                 if (value instanceof File) {
                     formDataToSend.append(key, value);
+                }
+            } else if (key === "destination_images_files" || key === "destination_thumbnails_files") {
+                // skip here; append files with different key names below
+            } else if (key === "destination_images") {
+                // Separate gallery URLs (strings) from uploaded files (File objects in the parallel _files key)
+                // Send selected gallery URLs as JSON in a separate field so backend can merge them later
+                const galleryUrls = Array.isArray(value) ? value.filter(item => typeof item === 'string') : [];
+                if (galleryUrls.length > 0) {
+                    formDataToSend.append("destination_images_urls", JSON.stringify(galleryUrls));
+                }
+            } else if (key === "destination_thumbnails") {
+                // Same logic for thumbnails
+                const galleryUrls = Array.isArray(value) ? value.filter(item => typeof item === 'string') : [];
+                if (galleryUrls.length > 0) {
+                    formDataToSend.append("destination_thumbnails_urls", JSON.stringify(galleryUrls));
                 }
             } else if (Array.isArray(value) || (typeof value === "object" && value !== null)) {
                 formDataToSend.append(key, JSON.stringify(value));
@@ -399,6 +416,20 @@ const CreateItineriesPage = () => {
                 formDataToSend.append(key, value);
             }
         });
+
+        // Append uploaded image files for destination images
+        if (Array.isArray(formData.destination_images_files) && formData.destination_images_files.length > 0) {
+            formData.destination_images_files.forEach((file) => {
+                if (file instanceof File) formDataToSend.append("destination_images", file);
+            });
+        }
+
+        // Append uploaded thumbnails
+        if (Array.isArray(formData.destination_thumbnails_files) && formData.destination_thumbnails_files.length > 0) {
+            formData.destination_thumbnails_files.forEach((file) => {
+                if (file instanceof File) formDataToSend.append("destination_thumbnails", file);
+            });
+        }
 
         try {
             await apiClient.post("/admin/itinerary", formDataToSend);
@@ -415,7 +446,9 @@ const CreateItineriesPage = () => {
                 days_information: [{ day: "1", locationName: "", locationDetail: "" }],
                 destination_detail: "",
                 destination_images: [],
+                destination_images_files: [],
                 destination_thumbnails: [],
+                destination_thumbnails_files: [],
                 duration: "",
                 exclusion: "",
                 hotel_as_per_category: "",
@@ -561,7 +594,7 @@ const CreateItineriesPage = () => {
                             type="submit"
                             className="bg-green-600 text-white px-8 py-3 text-lg rounded shadow"
                         >
-                            Create Itinerary
+                            Submit Itinerary
                         </button>
                     </div>
                 </form>
